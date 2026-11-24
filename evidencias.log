@@ -1,5 +1,5 @@
 ===== evidencias.log - Gerenciador de Memoria Virtual =====
-Data: 2026-11-24 18:19:01   Sistema: Linux 6.18.44-fc-v819 x86_64   Compilador: gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+Data: 2026-11-24 18:22:40   Sistema: Linux 6.18.44-fc-v819 x86_64   Compilador: gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
 
 $ make clean && make
 gcc -Wall -Wextra -O2 -std=c99 -pthread -o vm vm.c -pthread
