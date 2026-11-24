@@ -1,0 +1,197 @@
+===== evidencias.log - Gerenciador de Memoria Virtual =====
+Data: 2026-11-24 11:07:02   Sistema: Linux 6.18.44-fc-v819 x86_64   Compilador: gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0
+
+$ make clean && make
+gcc -Wall -Wextra -O2 -std=c99 -pthread -o vm vm.c -pthread
+
+##### 1. Execucoes validas (4 combinacoes) #####
+
+$ ./vm addresses.txt lru fifo
+codigo de saida: 0
+-- primeiras 5 linhas de correct.txt:
+Virtual address: 16916 TLB: 0 Physical address: 20 Value: 0
+Virtual address: 62493 TLB: 1 Physical address: 285 Value: 0
+Virtual address: 30198 TLB: 2 Physical address: 758 Value: 29
+Virtual address: 53683 TLB: 3 Physical address: 947 Value: 108
+Virtual address: 40185 TLB: 4 Physical address: 1273 Value: 0
+-- estatisticas:
+Number of Translated Addresses = 1000
+Page Faults = 539
+Page Fault Rate = 0.539
+TLB Hits = 54
+TLB Hit Rate = 0.054
+
+$ ./vm addresses.txt lru lru
+codigo de saida: 0
+-- primeiras 5 linhas de correct.txt:
+Virtual address: 16916 TLB: 0 Physical address: 20 Value: 0
+Virtual address: 62493 TLB: 1 Physical address: 285 Value: 0
+Virtual address: 30198 TLB: 2 Physical address: 758 Value: 29
+Virtual address: 53683 TLB: 3 Physical address: 947 Value: 108
+Virtual address: 40185 TLB: 4 Physical address: 1273 Value: 0
+-- estatisticas:
+Number of Translated Addresses = 1000
+Page Faults = 539
+Page Fault Rate = 0.539
+TLB Hits = 55
+TLB Hit Rate = 0.055
+
+$ ./vm addresses.txt fifo fifo
+codigo de saida: 0
+-- primeiras 5 linhas de correct.txt:
+Virtual address: 16916 TLB: 0 Physical address: 20 Value: 0
+Virtual address: 62493 TLB: 1 Physical address: 285 Value: 0
+Virtual address: 30198 TLB: 2 Physical address: 758 Value: 29
+Virtual address: 53683 TLB: 3 Physical address: 947 Value: 108
+Virtual address: 40185 TLB: 4 Physical address: 1273 Value: 0
+-- estatisticas:
+Number of Translated Addresses = 1000
+Page Faults = 538
+Page Fault Rate = 0.538
+TLB Hits = 54
+TLB Hit Rate = 0.054
+
+$ ./vm addresses.txt fifo lru
+codigo de saida: 0
+-- primeiras 5 linhas de correct.txt:
+Virtual address: 16916 TLB: 0 Physical address: 20 Value: 0
+Virtual address: 62493 TLB: 1 Physical address: 285 Value: 0
+Virtual address: 30198 TLB: 2 Physical address: 758 Value: 29
+Virtual address: 53683 TLB: 3 Physical address: 947 Value: 108
+Virtual address: 40185 TLB: 4 Physical address: 1273 Value: 0
+-- estatisticas:
+Number of Translated Addresses = 1000
+Page Faults = 538
+Page Fault Rate = 0.538
+TLB Hits = 55
+TLB Hit Rate = 0.055
+
+##### 2. Comparacao com o correct.txt fornecido pelo professor (lru fifo) #####
+$ diff correct_lru_fifo.txt correct_fornecido.txt
+RESULTADO: arquivos identicos (nenhuma diferenca nas 1005 linhas)
+
+##### 3. Verificacao das threads na busca da TLB #####
+$ strace -f -e trace=clone,clone3 ./vm addresses.txt lru fifo 2>&1 | grep -c clone
+16000
+(esperado: 16 threads x 1000 enderecos = 16000 threads criadas)
+
+##### 4. Tratamento de erros #####
+
+$ ./vm 
+Erro: numero de argumentos invalido (esperado 3, recebido 0).
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm addresses.txt
+Erro: numero de argumentos invalido (esperado 3, recebido 1).
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm addresses.txt lru
+Erro: numero de argumentos invalido (esperado 3, recebido 2).
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm addresses.txt lru fifo extra
+Erro: numero de argumentos invalido (esperado 3, recebido 4).
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm addresses.txt LRU fifo
+Erro: algoritmo de substituicao de pagina invalido: 'LRU'.
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm addresses.txt lru opt
+Erro: algoritmo de substituicao da TLB invalido: 'opt'.
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm addresses.txt 1 2
+Erro: algoritmo de substituicao de pagina invalido: '1'.
+Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
+  2o argumento: algoritmo de substituicao de pagina (fifo ou lru)
+  3o argumento: algoritmo de substituicao da TLB (fifo ou lru)
+Exemplo: ./vm addresses.txt lru fifo
+codigo de saida: 1
+
+$ ./vm nao_existe.txt lru fifo
+Erro: arquivo de enderecos 'nao_existe.txt' nao encontrado: No such file or directory
+codigo de saida: 1
+
+$ ./vm . lru fifo
+Erro: '.' nao e um arquivo regular.
+codigo de saida: 1
+
+$ cat -A empty.txt
+
+$ ./vm empty.txt fifo fifo
+Erro: o arquivo de enderecos 'empty.txt' esta vazio.
+codigo de saida: 1
+
+$ cat -A bad_format.txt
+100$
+abc$
+
+$ ./vm bad_format.txt fifo fifo
+Erro: formato invalido na linha 2 de 'bad_format.txt': esperado um inteiro nao negativo.
+codigo de saida: 1
+
+$ cat -A bad_negative.txt
+100$
+-5$
+
+$ ./vm bad_negative.txt fifo fifo
+Erro: formato invalido na linha 2 de 'bad_negative.txt': esperado um inteiro nao negativo.
+codigo de saida: 1
+
+$ cat -A bad_range.txt
+100$
+70000$
+
+$ ./vm bad_range.txt fifo fifo
+Erro: endereco fora do intervalo 0..65535 na linha 2 de 'bad_range.txt'.
+codigo de saida: 1
+
+$ cat -A bad_two.txt
+100 200$
+
+$ ./vm bad_two.txt fifo fifo
+Erro: formato invalido na linha 1 de 'bad_two.txt': esperado apenas um inteiro por linha.
+codigo de saida: 1
+
+$ cat -A bad_blank.txt
+100$
+$
+200$
+
+$ ./vm bad_blank.txt fifo fifo
+Erro: linha em branco no meio de 'bad_blank.txt' (antes da linha 3).
+codigo de saida: 1
+
+$ mv BACKING_STORE.bin BS.tmp
+
+$ ./vm addresses.txt lru fifo
+Erro: nao foi possivel abrir 'BACKING_STORE.bin': No such file or directory
+codigo de saida: 1
+
+$ make clean
+rm -f vm *.o correct.txt
