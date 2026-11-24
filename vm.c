@@ -8,7 +8,7 @@
  *   - substituicao de pagina: fifo ou lru;
  *   - substituicao da TLB (16 entradas): fifo ou lru;
  *   - busca na TLB feita por uma thread para cada entrada;
- *   - saida gravada em correct.txt.
+ *   - saida gravada em correct.txt e impressa na saida padrao (stdout).
  *
  * Uso: ./vm <arquivo_de_enderecos> <fifo|lru> <fifo|lru>
  *        argv[2] = algoritmo de substituicao de pagina
@@ -19,6 +19,7 @@
 
 #include <errno.h>
 #include <pthread.h>
+#include <stdarg.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -367,6 +368,18 @@ static FILE *open_backing_store(void)
     return fp;
 }
 
+/* Escreve a mesma linha no arquivo de saida e na saida padrao. */
+static void emit(FILE *out, const char *fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+    vfprintf(out, fmt, ap);
+    va_end(ap);
+    va_start(ap, fmt);
+    vfprintf(stdout, fmt, ap);
+    va_end(ap);
+}
+
 /* ---------------------------------------------------------------------- */
 /* Programa principal                                                     */
 /* ---------------------------------------------------------------------- */
@@ -447,18 +460,19 @@ int main(int argc, char *argv[])
         }
         page_table[page].last_use = clock_tick;
 
-        fprintf(out, "Virtual address: %d TLB: %d Physical address: %d Value: %d\n",
+        emit(out, "Virtual address: %d TLB: %d Physical address: %d Value: %d\n",
                 logical, tlb_index, frame * PAGE_SIZE + offset,
                 (int)physical_memory[frame][offset]);
         translated++;
     }
 
-    fprintf(out, "Number of Translated Addresses = %d\n", translated);
-    fprintf(out, "Page Faults = %d\n", page_faults);
-    fprintf(out, "Page Fault Rate = %.3f\n", (double)page_faults / translated);
-    fprintf(out, "TLB Hits = %d\n", tlb_hits);
-    fprintf(out, "TLB Hit Rate = %.3f\n", (double)tlb_hits / translated);
+    emit(out, "Number of Translated Addresses = %d\n", translated);
+    emit(out, "Page Faults = %d\n", page_faults);
+    emit(out, "Page Fault Rate = %.3f\n", (double)page_faults / translated);
+    emit(out, "TLB Hits = %d\n", tlb_hits);
+    emit(out, "TLB Hit Rate = %.3f\n", (double)tlb_hits / translated);
 
+    fflush(stdout);
     if (fclose(out) != 0) {
         fprintf(stderr, "Erro: falha ao gravar '%s'.\n", OUTPUT_FILE);
         fclose(backing);

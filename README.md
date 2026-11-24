@@ -38,7 +38,7 @@ Exemplo (mesma configuração do `correct.txt` fornecido):
 ./vm addresses.txt lru fifo
 ```
 
-O arquivo `BACKING_STORE.bin` precisa estar no diretório de execução. A saída é gravada em `correct.txt`, no formato:
+O arquivo `BACKING_STORE.bin` precisa estar no diretório de execução. A saída é impressa na saída padrão (terminal) e gravada em `correct.txt`, com o mesmo conteúdo, no formato:
 
 ```
 Virtual address: 16916 TLB: 0 Physical address: 20 Value: 0
@@ -60,7 +60,7 @@ Em cada linha, `TLB:` é o índice da entrada da TLB usada na tradução: a entr
    - os frames são preenchidos em ordem, de 0 a 127;
    - com a memória cheia, escolhe-se a vítima por **FIFO** (página carregada há mais tempo) ou **LRU** (página acessada há mais tempo); a página vítima é invalidada na tabela de páginas e na TLB.
 4. O mapeamento é inserido na TLB, substituindo uma entrada por **FIFO** (fila circular) ou **LRU** (entrada usada há mais tempo; entradas vazias são usadas primeiro).
-5. O byte (com sinal) no endereço físico é lido e a linha é gravada em `correct.txt`.
+5. O byte (com sinal) no endereço físico é lido e a linha é impressa na saída padrão e gravada em `correct.txt`.
 
 ## Tratamento de erros
 
@@ -82,7 +82,7 @@ O programa valida tudo antes de iniciar a simulação e termina com mensagem de 
 | fifo | fifo | 538 (0.538) | 54 (0.054) |
 | fifo | lru | 538 (0.538) | 55 (0.055) |
 
-A saída de `./vm addresses.txt lru fifo` é idêntica ao `correct.txt` fornecido. O registro completo dos testes está em `evidencias.log`.
+A saída de `./vm addresses.txt lru fifo`, tanto no terminal quanto no arquivo, é idêntica ao `correct.txt` fornecido. O registro completo dos testes está em `evidencias.log`.
 
 ## Arquivos
 
